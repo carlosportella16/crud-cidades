@@ -1,0 +1,10 @@
+/**
+* The classToCSS plugin automatically generates global style
+* Changes are invalid and will be overwritten
+*/
+.mt-5 { margin-top: 5px; } 
+.mr-3 { margin-right: 3px; } 
+.table { display: table; } 
+.table-striped { display: table-striped; } 
+.table-hover { display: table-hover; } 
+.text-white { text-align: white; } 
