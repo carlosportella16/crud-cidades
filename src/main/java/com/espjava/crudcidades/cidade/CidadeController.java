@@ -1,10 +1,13 @@
 package com.espjava.crudcidades.cidade;
 
 import java.security.Principal;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 
@@ -27,8 +30,13 @@ public class CidadeController {
     }
 
     @GetMapping("/")
-    public String listar(Model memoria, Principal usuario, HttpSession sessao) {
+    public String listar(
+            Model memoria,
+            Principal usuario,
+            HttpSession sessao,
+            HttpServletResponse response) {
 
+        response.addCookie(new Cookie("listar", LocalDateTime.now().toString()));
         memoria.addAttribute("listaCidades", this.converteCidade(repository.findAll()));
 
         sessao.setAttribute("usuarioAtual", usuario.getName());
@@ -45,7 +53,13 @@ public class CidadeController {
     }
 
     @PostMapping("/criar")
-    public String criar(@Valid Cidade cidade, BindingResult validacao, Model memoria) {
+    public String criar(
+            @Valid Cidade cidade,
+            BindingResult validacao,
+            Model memoria,
+            HttpServletResponse response) {
+
+        response.addCookie(new Cookie("criar", LocalDateTime.now().toString()));
 
         if (validacao.hasErrors()) {
 
@@ -72,7 +86,10 @@ public class CidadeController {
     @GetMapping("/excluir")
     public String excluir(
             @RequestParam String nome,
-            @RequestParam String estado) {
+            @RequestParam String estado,
+            HttpServletResponse response) {
+
+        response.addCookie(new Cookie("excluir", LocalDateTime.now().toString()));
 
         var cidadeEstadoEncontrada = repository.findByNomeAndEstado(nome, estado);
 
@@ -102,8 +119,10 @@ public class CidadeController {
             @RequestParam String estadoAtual,
             Cidade cidade,
             BindingResult validacao,
-            Model memoria) {
+            Model memoria,
+            HttpServletResponse response) {
 
+        response.addCookie(new Cookie("alterar", LocalDateTime.now().toString()));
         var cidadeAtual = repository.findByNomeAndEstado(nomeAtual, estadoAtual);
 
         if (cidadeAtual.isPresent()) {
