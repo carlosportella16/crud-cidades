@@ -1,5 +1,7 @@
 package com.espjava.crudcidades;
 
+import java.util.Set;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.event.EventListener;
@@ -7,6 +9,8 @@ import org.springframework.security.authentication.event.InteractiveAuthenticati
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
@@ -19,7 +23,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     http
         .csrf().disable()
         .authorizeRequests()
-        .antMatchers("/").hasAnyAuthority("listar", "admin")
+        // .antMatchers("/").hasAnyAuthority("listar", "admin")
+        .antMatchers("/").authenticated()
         .antMatchers("/criar").hasAuthority("admin")
         .antMatchers("/excluir").hasAuthority("admin")
         .antMatchers("/preparaAlterar").hasAuthority("admin")
@@ -27,22 +32,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         .antMatchers("/mostrar").authenticated()
         .anyRequest().denyAll()
         .and()
-        .formLogin()
-        .loginPage("/login.html").permitAll()
-        .defaultSuccessUrl("/", false)
-        .and()
-        .logout().permitAll();
+        .oauth2Login().userInfoEndpoint().userAuthoritiesMapper((userAuthoritiesMapper()));
   }
 
   @Bean
-  public PasswordEncoder cifrador() {
-    return new BCryptPasswordEncoder();
-  }
-
-  @EventListener(InteractiveAuthenticationSuccessEvent.class)
-  public void printUsuarioAtual(InteractiveAuthenticationSuccessEvent event) {
-    var usuario = event.getAuthentication().getName();
-
-    System.out.println(usuario);
+  public GrantedAuthoritiesMapper userAuthoritiesMapper() {
+    return (authorities) -> Set.of(new SimpleGrantedAuthority("admin"));
   }
 }
